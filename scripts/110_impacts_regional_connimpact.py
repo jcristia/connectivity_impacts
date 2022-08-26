@@ -21,7 +21,7 @@ outgdb = 'regional_connimpact.gdb'
 conn_lines = os.path.join(root, 'connectivity.gdb/conn_avg_pld21_noUS')
 sg_impacts = os.path.join(root, 'main_seagrass.gdb/sg_6_imptotal')
 arcpy.env.workspace = os.path.join(root, outgdb)
-naturalness_levels = ['total_norm_1_2', 'total_norm_1_10']
+naturalness_levels = ['total_norm_1_2', 'total_norm_1_10', 'total_norm_1_100']
 
 
 # read in connectivity lines as dataframe
@@ -35,7 +35,7 @@ df_conn = df_conn.drop(['Shape', 'freq', 'totalori', 'totquant', 'Shape_Length']
 field_names = [i.name for i in arcpy.ListFields(sg_impacts) if i.type != 'OID']
 cursor = arcpy.da.SearchCursor(sg_impacts, field_names)
 df_imp = pd.DataFrame(data=[row for row in cursor], columns=field_names)
-df_imp = df_imp[['uID', 'total_norm_0_1', 'total_norm_1_2', 'total_norm_1_10']]
+df_imp = df_imp[['uID', 'total_norm_0_1', 'total_norm_1_2', 'total_norm_1_10', 'total_norm_1_100']]
 
 
 
@@ -104,7 +104,7 @@ arcpy.CopyFeatures_management('sg_7_imptotal_sourcesink_pts', os.path.join(root,
 
 ###############################################################
 # For the metapopulation model
-# rescale the connectivity lines for the 3 (well, 2) naturalness levels (just
+# rescale the connectivity lines for the naturalness levels (just
 # copy over the original values of the lines)
 # This is a LINE MEADOW to MEADOW level impact.
 
@@ -115,6 +115,7 @@ arcpy.CopyFeatures_management(conn_lines, 'conn_lines_temp')
 arcpy.AddField_management('conn_lines_temp', 'probavg_BASE', 'DOUBLE')
 arcpy.AddField_management('conn_lines_temp', 'probavg_1_2', 'DOUBLE')
 arcpy.AddField_management('conn_lines_temp', 'probavg_1_10', 'DOUBLE')
+arcpy.AddField_management('conn_lines_temp', 'probavg_1_100', 'DOUBLE')
 
 # calculate 1st one as is
 arcpy.CalculateField_management('conn_lines_temp', 'probavg_BASE', '!prob_avg!')
@@ -132,11 +133,14 @@ fields = [
     'probavg_BASE',
     'probavg_1_2',
     'probavg_1_10',
+    'probavg_1_100',
     'total_norm_1_2',
-    'total_norm_1_10']
+    'total_norm_1_10',
+    'total_norm_1_100']
 with arcpy.da.UpdateCursor('conn_lines_impacts', fields) as cursor:
     for row in cursor:
-        row[1] = row[0] / row[3]
-        row[2] = row[0] / row[4]
+        row[1] = row[0] / row[4]
+        row[2] = row[0] / row[5]
+        row[3] = row[0] / row[6]
         cursor.updateRow(row)
 
