@@ -58,6 +58,10 @@ start = 1
 end = 10
 width = end - start
 df_imp['total_norm_1_10'] = df_imp.total_norm_0_1 * width + start
+start = 1
+end = 100
+width = end - start
+df_imp['total_norm_1_100'] = df_imp.total_norm_0_1 * width + start
 
 
 # create table and join back to sg fc
