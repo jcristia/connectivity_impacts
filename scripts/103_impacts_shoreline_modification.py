@@ -165,3 +165,38 @@ arcpy.DeleteField_management('sg_106_AREA', ['area', 'traced', 'BUFF_DIST', 'ORI
 # sg_106_AREA is my primary output. It contains:
 # shmod_area: the area of all the shoreline modification in the 100m buffer
 # shmod_percent: the percentage of the buffer the is modified
+
+# output to point
+arcpy.FeatureToPoint_management('sg_106_AREA', 'sg_106_AREA_pt', 'INSIDE')
+
+
+##################################################
+
+# calculate % by modification type
+
+arcpy.Frequency_analysis('sg_104_sjoin', 'sg_105_freqArea_type', ['uID', 'desc_1'], ['Shape_Area_1'])
+arcpy.env.qualifiedFieldNames = False
+joined_table = arcpy.AddJoin_management('sg_103_clipcoast', 'uID', 'sg_105_freqArea_type', 'uID')
+arcpy.CopyFeatures_management(joined_table, 'sg_106_AREA_type')
+
+# clean up attributes
+arcpy.AddFields_management(
+    'sg_106_AREA_type',
+    [
+        ['shmod_area', 'DOUBLE', 'shmod_area'],
+        ['shmod_percent', 'DOUBLE', 'shmod_percent']
+    ]
+)
+with arcpy.da.UpdateCursor('sg_106_AREA_type', ['Shape_Area_1', 'Shape_Area', 'shmod_area', 'shmod_percent']) as cursor:
+    for row in cursor:
+        if row[0] ==  None:
+            row[2]=0.0
+            row[3]=0.0
+        else:
+            row[2]=row[0]
+            row[3]=row[0]/row[1] * 100
+        cursor.updateRow(row)
+arcpy.DeleteField_management('sg_106_AREA_type', ['area', 'traced', 'BUFF_DIST', 'ORIG_FID', 'OBJECTID_1', 'uID_1', 'Shape_Area_1'])
+
+arcpy.FeatureToPoint_management('sg_106_AREA_type', 'sg_106_AREA_type_pt', 'INSIDE')
+
