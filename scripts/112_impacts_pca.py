@@ -138,7 +138,23 @@ fig.update_layout(
 )
 fig.layout.coloraxis.colorbar.title = 'latitude'
 fig.show()
-fig.write_image(os.path.join(root, 'scripts/figs/pca.png'))
+# Output formatting:
+# 2 column width in Facets is 18.2cm. Requires 300dpi.
+# You only set pixels when outputing a plot here. Actual size and dpi is set
+# by the layout/printing settings. However, if you want that size with that dpi
+# then you need to make sure the figure has the right pixel dimensions.
+# I will do a 14cm x 10cm plot.
+# In plotly, you can't just set the height and width. The text and line widths
+# do not scale with that. Therefore, you need to use the scale parameter.
+# https://stackoverflow.com/questions/61954540/set-dpi-with-plotly
+# Output as .svg and then use a free online tool to change dpi and convert to
+# .tif. Choose one that allows you to specify no compression.
+# https://www.freeconvert.com/svg-to-tiff
+# To calculate pixel width from cm at 300 dpi:
+# https://www.pixelto.net/cm-to-px-converter
+fig.write_image(os.path.join(root, 'scripts/figs/pca.svg'), scale=2.3333333)
+
+# Interpretation
 
 # population and shoreline modification are driving a lot of the variation
 # it is interesting to see it opposite of cutblocks. I guess that is because
