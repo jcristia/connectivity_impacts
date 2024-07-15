@@ -24,6 +24,7 @@
 *.shx
 *.png
 *.svg
+*.tiff
 
 *.pyc
 
