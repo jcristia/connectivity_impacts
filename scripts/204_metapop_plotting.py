@@ -39,7 +39,7 @@ if canada_only:
 sg_total_count = len(persistence_df)
 
 # create blank df to append to
-df_summary = pd.DataFrame(columns={'canada_only', 'naturalness', 'disp_prop', 'mortality_rate', 'persistent_percent'})
+df_summary = pd.DataFrame(columns=['canada_only', 'naturalness', 'disp_prop', 'mortality_rate', 'persistent_percent'])
 
 # for each persistence field
 # get the nlevel, prop, r values
@@ -59,13 +59,13 @@ for nlevel in naturalness_levels:
             else:
                 perc_pers = pd.to_numeric('')
 
-            df_summary = df_summary.append({
+            df_summary = pd.concat([df_summary, pd.DataFrame({
                 'canada_only': str(canada_only),
                 'naturalness':nlevel, 
                 'disp_prop':prop, 
                 'mortality_rate':mort, 
                 'persistent_percent':perc_pers
-                }, ignore_index=True)
+            }, index=[0,1,2,3,4])], ignore_index=True)
 
 df_summary.loc[df_summary['naturalness'] == 'probavg_BASE', 'naturalness'] = 'base'
 df_summary.loc[df_summary['naturalness'] == 'probavg_1_2', 'naturalness'] = '1-2'
@@ -107,5 +107,14 @@ f = sns.relplot(
 )
 f._legend.remove()
 plt.legend(title='Naturalness range')
-f.set(xlabel='Proportion of population produced and \n dispersing at each timestep ($\it{d}$)', ylabel='% of seagrass meadows persistent')
-f.savefig('figs/fig05_sgpersistent.svg')
+f.set(xlabel='Proportion of population produced and \n dispersing at each timestep ($\it{d}$)', ylabel='% of seagrass meadow populations persistent')
+f.savefig(r'C:\Users\jcristia\Documents\GIS\MSc_Projects\Impacts_connectivity_chap3\scripts\figs\sgpersistent.svg')
+
+# Output formatting:
+# 1 column width in Facets is 8.84cm. Requires 300dpi.
+# Size and DPI are printer settings not image file settings.
+# Output as .svg and then use a free online tool to change dpi and convert to
+# .tif. Choose one that allows you to specify no compression.
+# https://www.freeconvert.com/svg-to-tiff
+# To calculate pixel width from cm at 300 dpi:
+# https://www.pixelto.net/cm-to-px-converter (1049 pixels)
